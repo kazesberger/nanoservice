@@ -4,6 +4,14 @@
             [ring.middleware.json :refer [wrap-json-response]]
             [ring.util.response :refer [response]]))
 
+def db (atom {})
+
+(defn resp-handler
+  (response
+    (cheshire/generate-string {:name       "klaus"}
+                             :profession "HROO! HROO! HROO!"
+                             :foo        ["bar" "baz"])))
+
 (defn handler [request]
   {:status  200
    :headers {"Content-Type" "application/json"}
