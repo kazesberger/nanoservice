@@ -8,9 +8,9 @@ def db (atom {})
 
 (defn resp-handler
   (response
-    (cheshire/generate-string {:name       "klaus"}
-                             :profession "HROO! HROO! HROO!"
-                             :foo        ["bar" "baz"])))
+    (cheshire/generate-string {:name       "klaus"
+                               :profession "HROO! HROO! HROO!"
+                               :foo        ["bar" "baz"]})))
 
 (defn handler [request]
   {:status  200
