@@ -1,10 +1,14 @@
 (ns nanoservice.core
+  (:use     [hiccup.middleware :only (wrap-base-url)])
   (:require [ring.adapter.jetty :as jetty]
             [cheshire.core :as cheshire]
             [ring.middleware.json :refer [wrap-json-response]]
-            [ring.util.response :refer [response content-type]]))
+            [ring.util.response :refer [response content-type]]
+            [compojure.core :as comp]
+            [compojure.route :as route]
+            [compojure.handler :as handler]))
 
-(def db (atom {}))
+(def db (atom 0))
 
 (defn resp-handler [request]
   (content-type
@@ -14,13 +18,22 @@
                                  :foo        ["bar" "baz"]}))
     "application/json"))
 
-(response "Hello World")
+(defn state []
+  (str "Counter is " @db))
 
-(defn handler [request]
-  {:status  200
-   :headers {"Content-Type" "application/json"}
-   :body    "foo"})
+(defn handler [f]
+  (swap! db f)
+  (state))
 
+(comp/defroutes main-routes
+  (comp/GET "/inc" [] (handler inc))
+  (comp/GET "/dec" [] (handler dec))
+  (route/resources "/")
+  (route/not-found "Page not found"))
 
-(jetty/run-jetty resp-handler {:port 3000
-                               :join? false})
+;(jetty/run-jetty resp-handler {:port 3000
+;                               :join? false})
+
+(def app
+  (-> (handler/site main-routes)
+      (wrap-base-url)))
